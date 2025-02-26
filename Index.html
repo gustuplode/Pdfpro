@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pdfcut.pro - Free PDF & Image Tools Online</title>
+    <meta name="description" content="pdfcut.pro offers free online tools to convert images to PDF, PDFs to images, compress images, remove backgrounds, convert images to PNG, and PNG to JPEG instantly. No sign-up required, fast, and reliable!">
+    <meta name="keywords" content="pdfcut.pro, free image to pdf, pdf to image converter, image compressor, remove background, image to png, png to jpeg, free pdf tools, online pdf converter, image compression tool">
+    <meta name="author" content="pdfcut.pro Team">
+    <meta name="robots" content="index, follow">
+    <meta name="revisit-after" content="7 days">
+    <meta property="og:title" content="pdfcut.pro - Free PDF & Image Tools Online">
+    <meta property="og:description" content="Convert images to PDF, PDFs to images, compress images, remove backgrounds, and more for free with pdfcut.pro. Easy, fast, and no registration needed.">
+    <meta property="og:url" content="https://pdfcut.pro">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://pdfcut.pro/og-image.jpg">
+    <meta property="og:site_name" content="pdfcut.pro">
+    <link rel="canonical" href="https://pdfcut.pro">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "pdfcut.pro",
+      "url": "https://pdfcut.pro",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://pdfcut.pro/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            line-height: 1.4;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            padding: 15px 20px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            position: fixed;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            height: 40px;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-btn {
+            padding: 10px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        .nav-btn:active {
+            transform: translateY(0);
+        }
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin: 80px 0 10px;
+            max-width: 600px;
+            width: 100%;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: #fff;
+            border: 1px solid #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #3498db;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            background: #3498db;
+            color: #fff;
+        }
+        .tab-btn:hover:not(.active) {
+            background: #cce5ff;
+        }
+        #drop-area {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            border: 2px dashed #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+        }
+        #drop-area.dragover {
+            border-color: #2ecc71;
+            background: rgba(46, 204, 113, 0.1);
+            transform: scale(1.01);
+        }
+        #drop-area p {
+            color: #7f8c8d;
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+        #drop-area .highlight {
+            display: inline-block;
+            color: #fff;
+            font-weight: bold;
+            font-size: 1.2em;
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+        }
+        #drop-area span {
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        #drop-area input {
+            display: none;
+        }
+        .preview-page {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 10px;
+        }
+        .preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        #image-compress-preview .preview {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 15px;
+        }
+        .item-box {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            animation: bounceIn 0.5s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px;
+        }
+        #image-compress-preview .item-box {
+            height: 250px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            padding: 10px;
+        }
+        .item-box img {
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+            border-radius: 4px;
+            transition: all 0.6s ease;
+        }
+        #image-compress-preview .item-box img {
+            max-height: 150px;
+            border-radius: 8px;
+        }
+        .item-box.blur img {
+            filter: blur(5px) brightness(0.7);
+            transform: scale(0.9);
+        }
+        .item-box.loading {
+            border: 2px solid transparent;
+            animation: borderPulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+        }
+        .item-box.selected img {
+            border: 2px solid #2ecc71;
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+        }
+        .item-box .loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+        }
+        .item-box .loader::before {
+            content: '⏳';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            color: #3498db;
+            animation: spin 1.2s linear infinite;
+        }
+        .remove-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .remove-btn:hover {
+            transform: scale(1.2) rotate(90deg);
+        }
+        .quality-slider {
+            width: 100%;
+            margin: 5px 0;
+        }
+        .size-info {
+            font-size: 0.7em;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+        .compress-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+        .compress-btn:hover {
+            background: #27ae60;
+        }
+        #plus-btn {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: none;
+        }
+        #plus-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: #2980b9;
+        }
+        .action-btn {
+            background: #2ecc71;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            margin: 10px auto;
+            display: block;
+        }
+        .action-btn:hover {
+            background: #27ae60;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .download-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+            display: none;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .download-btn:hover {
+            background: linear-gradient(135deg, #c0392b, #992d22);
+            transform: translateY(-1px) scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        #password-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+        }
+        #password-modal input {
+            width: 100%;
+            padding: 6px;
+            margin: 8px 0;
+            border: 1px solid #3498db;
+            border-radius: 3px;
+        }
+        #password-modal button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        #password-modal button:hover {
+            background: #2980b9;
+        }
+        .refresh-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin: 5px auto;
+            display: block;
+        }
+        .refresh-btn:hover {
+            background: #c0392b;
+        }
+        .banner-ad {
+            width: 100%;
+            max-width: 468px;
+            height: 60px;
+            background: #ddd;
+            margin: 10px auto;
+            text-align: center;
+            line-height: 60px;
+            color: #777;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .features-section {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .features-section h2 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            padding: 10px;
+        }
+        .feature-card {
+            background: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-3px);
+        }
+        .feature-card h3 {
+            color: #3498db;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        .feature-card p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        footer {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            background: #ffffff;
+            text-align: center;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
+        }
+        footer a {
+            color: #3498db;
+            text-decoration: none;
+            margin: 0 5px;
+            font-size: 0.9em;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        footer p {
+            color: #7f8c8d;
+            margin: 5px 0;
+            font-size: 0.8em;
+        }
+        #home-page, #mod-apk-page, #memes-page, #privacy-page, #terms-page, #contact-page, #about-page {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            padding: 80px 20px 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .app-card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            text-align: center;
+        }
+        .app-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+        .app-card h3 {
+            font-size: 1.1em;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .app-card p {
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        .coming-soon {
+            width: 100%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            background: #f0f4f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: #2c3e50;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .content-page {
+            padding: 20px;
+        }
+        .content-page h1 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        .content-page h2 {
+            color: #3498db;
+            font-size: 1.5em;
+            margin: 20px 0 10px;
+        }
+        .content-page p, .content-page ul {
+            color: #7f8c8d;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+        .content-page ul {
+            padding-left: 20px;
+        }
+        .content-page li {
+            margin-bottom: 10px;
+        }
+        .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        .contact-form input, .contact-form textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .contact-form button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .contact-form button:hover {
+            background: #2980b9;
+        }
+        @media (max-width: 768px) {
+            .logo { height: 30px; }
+            .nav-buttons { gap: 10px; }
+            .nav-btn { padding: 8px 15px; font-size: 0.9em; }
+            #drop-area { padding: 15px; }
+            .item-box { height: 120px; }
+            .item-box img { max-height: 80px; }
+            #image-compress-preview .item-box { height: 200px; }
+            #image-compress-preview .item-box img { max-height: 120px; }
+            #plus-btn { width: 35px; height: 35px; font-size: 1em; }
+            .features-grid { grid-template-columns: 1fr; }
+            .preview { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            header { flex-wrap: wrap; justify-content: center; }
+            .nav-buttons { margin-top: 10px; }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        @keyframes borderPulse {
+            0% { box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); border-color: #3498db; }
+            50% { box-shadow: 0 0 15px rgba(52, 152, 219, 0.8); border-color: #2ecc71; }
+            100% { box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); border-color: #3498db; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="https://media-hosting.imagekit.io/01ab9a1551cc4bd6/Screenshot_20250225-224615.jpg?Expires=1835160311&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=ZGkIFct1fjEWYHb64RHY2xPcNE~rNguMBnUcZBfaTJ8lnuU-G-ydF6MniO1qCErJ9bWduZObH807jIrAXaNAGEW3EkOhCVwrFYudlWGLZMwUautjlnTk2RFesQVgHA8mgKTar7lYmDDWME8H0qktvzIQqLjhuYRmm1kAYTcVr6zhyy3fip0BEbmYl1j~sFaFcDhOXNQDIxhhSSg87zzoYYnTh5c-AlfpnlHdSlcXckP-Ta5jbQLMbSNU3L6ZVeMhvHaaizOLpe-66WksTnXBCGP0hsu9QZALyUiwCnYOzIwGdE~uSpY9lzCsSjXKxI2Q91P7RIUm1PpzUdJkk3kZqQ__" alt="pdfcut.pro" class="logo">
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="showPage('home')">Home</button>
+            <button class="nav-btn" onclick="showPage('mod-apk')">Mod APK</button>
+            <button class="nav-btn" onclick="showPage('memes')">Funny Memes</button>
+        </div>
+    </header>
+
+    <div id="home-page">
+        <div class="tabs" id="tools">
+            <button class="tab-btn active" onclick="switchTool('image-to-pdf')">Image to PDF</button>
+            <button class="tab-btn" onclick="switchTool('pdf-to-image')">PDF to Image</button>
+            <button class="tab-btn" onclick="switchTool('image-compress')">Image Compressor</button>
+        </div>
+
+        <div id="drop-area">
+            <p>Drag & Drop or Click to Upload</p>
+            <div class="highlight" id="tool-name">Image to PDF</div>
+            <span id="tool-info">100% Free - No Sign-Up Needed</span>
+            <input type="file" id="file-input" multiple>
+        </div>
+
+        <div class="tabs" id="tools-bottom">
+            <button class="tab-btn" onclick="switchTool('remove-bg')">Remove BG</button>
+            <button class="tab-btn" onclick="switchTool('image-to-png')">Image to PNG</button>
+            <button class="tab-btn" onclick="switchTool('png-to-jpeg')">PNG to JPEG</button>
+        </div>
+
+        <div id="image-to-pdf-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="image-to-pdf-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('image-to-pdf')">Refresh</button>
+            <button class="action-btn" onclick="generatePDF()">Convert to PDF</button>
+        </div>
+        <div id="pdf-to-image-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="pdf-to-image-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('pdf-to-image')">Refresh</button>
+            <button class="action-btn" onclick="convertPDFtoImage()">Convert to Images</button>
+        </div>
+        <div id="image-compress-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="image-compress-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('image-compress')">Refresh</button>
+            <button class="action-btn" onclick="compressAllImages()">All Compress</button>
+        </div>
+        <div id="remove-bg-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="remove-bg-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('remove-bg')">Refresh</button>
+            <button class="action-btn" onclick="removeBackgroundAll()">Remove Background</button>
+        </div>
+        <div id="image-to-png-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="image-to-png-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('image-to-png')">Refresh</button>
+            <button class="action-btn" onclick="convertToPNGAll()">Convert to PNG</button>
+        </div>
+        <div id="png-to-jpeg-preview" class="preview-page">
+            <div class="banner-ad">Demo Banner Ad - 468x60</div>
+            <div id="png-to-jpeg-preview-content" class="preview"></div>
+            <button class="refresh-btn" onclick="refreshTool('png-to-jpeg')">Refresh</button>
+            <button class="action-btn" onclick="convertToJPEGAll()">Convert to JPEG</button>
+        </div>
+
+        <div id="password-modal">
+            <h3>Enter PDF Password</h3>
+            <input type="password" id="pdf-password" placeholder="Password">
+            <button onclick="submitPassword()">Submit</button>
+        </div>
+
+        <section class="features-section" id="features">
+            <h2>Why Choose pdfcut.pro?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>Image to PDF</h3>
+                    <p>Convert multiple images into a single PDF file effortlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>PDF to Image</h3>
+                    <p>Extract images from PDF files with high-quality output.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Image Compressor</h3>
+                    <p>Reduce image file sizes without losing quality.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Remove Background</h3>
+                    <p>Eliminate backgrounds from images easily.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Image to PNG</h3>
+                    <p>Convert any image format to PNG with transparency support.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>PNG to JPEG</h3>
+                    <p>Convert PNG images to JPEG format quickly.</p>
+                </div>
+            </div>
+        </section>
+
+        <button id="plus-btn" onclick="addMoreFiles()">+</button>
+
+        <footer id="footer">
+            <div>
+                <a href="#home" onclick="showPage('home')">Home</a> |
+                <a href="#mod-apk" onclick="showPage('mod-apk')">Mod APK</a> |
+                <a href="#memes" onclick="showPage('memes')">Funny Memes</a> |
+                <a href="#privacy" onclick="showPage('privacy')">Privacy Policy</a> |
+                <a href="#terms" onclick="showPage('terms')">Terms & Conditions</a> |
+                <a href="#contact" onclick="showPage('contact')">Contact Us</a> |
+                <a href="#about" onclick="showPage('about')">About Us</a>
+            </div>
+            <p id="privacy">Privacy Policy: We do not store or share your files. All processing is local.</p>
+            <p id="contact">Contact Us: <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a></p>
+            <p>© 2025 pdfcut.pro. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <div id="mod-apk-page">
+        <h2>Mod APK - pdfcut.pro</h2>
+        <div class="app-grid">
+            <div class="app-card">
+                <img src="https://via.placeholder.com/100?text=TikTok" alt="TikTok">
+                <h3>TikTok - pdfcut.pro</h3>
+                <p>Video-sharing app with premium features unlocked.</p>
+            </div>
+            <div class="app-card">
+                <img src="https://via.placeholder.com/100?text=CapCut" alt="CapCut">
+                <h3>CapCut - pdfcut.pro</h3>
+                <p>Video editing with pro tools enabled.</p>
+            </div>
+            <div class="app-card">
+                <img src="https://via.placeholder.com/100?text=VN" alt="VN Editor">
+                <h3>VN Editor - pdfcut.pro</h3>
+                <p>Advanced video editor with modded features.</p>
+            </div>
+            <div class="app-card">
+                <img src="https://via.placeholder.com/100?text=Filmora" alt="Filmora">
+                <h3>Filmora - pdfcut.pro</h3>
+                <p>Professional video editing with premium access.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="memes-page">
+        <div class="coming-soon">Coming Soon - Funny Memes</div>
+    </div>
+
+    <div id="privacy-page" class="content-page">
+        <h1>Privacy Policy</h1>
+        <p>Last Updated: February 25, 2025</p>
+        <p>At pdfcut.pro, we respect your privacy and are committed to protecting your personal information. This Privacy Policy outlines how we collect, use, and safeguard your data in accordance with Google’s guidelines and applicable laws.</p>
+        
+        <h2>Information We Collect</h2>
+        <p>We collect minimal information necessary to provide our services:</p>
+        <ul>
+            <li><strong>Files Uploaded:</strong> Images, PDFs, or other files you upload for processing are handled locally on your device. We do not store or transmit these files to our servers.</li>
+            <li><strong>Contact Information:</strong> If you choose to contact us via email or our contact form, we collect your name, email address, and message content.</li>
+            <li><strong>Usage Data:</strong> We may collect anonymized usage statistics (e.g., tool usage frequency) to improve our services. No personally identifiable information is collected.</li>
+        </ul>
+
+        <h2>How We Use Your Information</h2>
+        <p>Your information is used solely for:</p>
+        <ul>
+            <li>Processing your files locally through our tools.</li>
+            <li>Responding to your inquiries or support requests.</li>
+            <li>Improving our website functionality and user experience.</li>
+        </ul>
+
+        <h2>Data Storage and Security</h2>
+        <p>We do not store your uploaded files on our servers. All processing occurs in your browser, ensuring your data remains on your device. Contact information submitted via the form is stored securely and used only to reply to you.</p>
+
+        <h2>Third-Party Services</h2>
+        <p>We use third-party libraries (e.g., jsPDF, PDF.js) for functionality, but these do not collect or transmit your data. We may display ads via third-party providers, which may use cookies or similar technologies. Please review their privacy policies for details.</p>
+
+        <h2>Your Rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Request access to any personal data we hold (e.g., contact form submissions).</li>
+            <li>Request deletion of your data by contacting us at <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a>.</li>
+        </ul>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this Privacy Policy periodically. Changes will be posted here with an updated "Last Updated" date.</p>
+
+        <h2>Contact Us</h2>
+        <p>For questions about this Privacy Policy, please contact us at <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a>.</p>
+    </div>
+
+    <div id="terms-page" class="content-page">
+        <h1>Terms & Conditions</h1>
+        <p>Last Updated: February 25, 2025</p>
+        <p>By using pdfcut.pro, you agree to these Terms & Conditions. Please read them carefully.</p>
+
+        <h2>Use of Our Website</h2>
+        <ul>
+            <li>You may use our tools for personal, non-commercial purposes only.</li>
+            <li>You must not use our services to upload illegal, harmful, or copyrighted content without permission.</li>
+            <li>We reserve the right to suspend or terminate access for misuse.</li>
+        </ul>
+
+        <h2>Intellectual Property</h2>
+        <p>All content on pdfcut.pro (e.g., design, code, text) is our property or licensed to us. You may not reproduce or distribute it without permission.</p>
+
+        <h2>Limitation of Liability</h2>
+        <p>Our services are provided "as is." We are not liable for:</p>
+        <ul>
+            <li>Data loss or errors during file processing.</li>
+            <li>Indirect damages from using our tools.</li>
+        </ul>
+
+        <h2>User Responsibilities</h2>
+        <p>You are responsible for:</p>
+        <ul>
+            <li>Ensuring uploaded files comply with applicable laws.</li>
+            <li>Maintaining the security of your device.</li>
+        </ul>
+
+        <h2>Changes to Terms</h2>
+        <p>We may update these Terms & Conditions. Continued use after changes implies acceptance.</p>
+
+        <h2>Contact Us</h2>
+        <p>For questions, contact us at <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a>.</p>
+    </div>
+
+    <div id="contact-page" class="content-page">
+        <h1>Contact Us</h1>
+        <p>We’d love to hear from you! Reach out via the form below or email us directly.</p>
+        
+        <form class="contact-form" onsubmit="alert('Form submitted! We will get back to you soon.'); return false;">
+            <input type="text" name="name" placeholder="Your Name" required>
+            <input type="email" name="email" placeholder="Your Email" required>
+            <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+            <button type="submit">Send Message</button>
+        </form>
+        
+        <p>Alternatively, email us at <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a>.</p>
+    </div>
+
+    <div id="about-page" class="content-page">
+        <h1>About Us</h1>
+        <p>Welcome to pdfcut.pro, your one-stop solution for free, fast, and reliable PDF and image editing tools.</p>
+        
+        <h2>Our Purpose</h2>
+        <p>At pdfcut.pro, our mission is to empower users with easy-to-use, browser-based tools for managing PDFs and images without the need for downloads, sign-ups, or subscriptions. Whether you’re converting files, compressing images, or removing backgrounds, we aim to simplify your workflow while keeping your data private and secure.</p>
+
+        <h2>Why We Exist</h2>
+        <p>We noticed a gap in accessible, no-cost tools that respect user privacy. That’s why we created pdfcut.pro—to provide a platform where all processing happens locally on your device, ensuring your files never leave your control.</p>
+
+        <h2>Our Commitment</h2>
+        <p>We’re dedicated to:</p>
+        <ul>
+            <li>Offering free, high-quality tools.</li>
+            <li>Maintaining transparency and privacy.</li>
+            <li>Continuously improving based on your feedback.</li>
+        </ul>
+
+        <h2>Get in Touch</h2>
+        <p>Have suggestions or questions? Contact us at <a href="mailto:gustuplode@gmail.com">gustuplode@gmail.com</a>.</p>
+    </div>
+
+    <script>
+        const { jsPDF } = window.jspdf;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.11.338/pdf.worker.min.js';
+
+        let currentTool = 'image-to-pdf';
+        let imageToPDFImages = [];
+        let pdfToImageFiles = [];
+        let pdfToImageImages = [];
+        let imageCompressImages = [];
+        let imageCompressTargets = [];
+        let originalSizes = [];
+        let removeBGImages = [];
+        let imageToPNGImages = [];
+        let pngToJPEGImages = [];
+        let pendingPDF = null;
+        let pdfPassword = '';
+        let toolStates = {
+            'image-to-pdf': { active: false },
+            'pdf-to-image': { active: false },
+            'image-compress': { active: false },
+            'remove-bg': { active: false },
+            'image-to-png': { active: false },
+            'png-to-jpeg': { active: false }
+        };
+
+        function showPage(page) {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('mod-apk-page').style.display = 'none';
+            document.getElementById('memes-page').style.display = 'none';
+            document.getElementById('privacy-page').style.display = 'none';
+            document.getElementById('terms-page').style.display = 'none';
+            document.getElementById('contact-page').style.display = 'none';
+            document.getElementById('about-page').style.display = 'none';
+            if (page === 'home') {
+                document.getElementById('home-page').style.display = 'block';
+                refreshTool(currentTool);
+            } else if (page === 'mod-apk') {
+                document.getElementById('mod-apk-page').style.display = 'block';
+            } else if (page === 'memes') {
+                document.getElementById('memes-page').style.display = 'block';
+            } else if (page === 'privacy') {
+                document.getElementById('privacy-page').style.display = 'block';
+            } else if (page === 'terms') {
+                document.getElementById('terms-page').style.display = 'block';
+            } else if (page === 'contact') {
+                document.getElementById('contact-page').style.display = 'block';
+            } else if (page === 'about') {
+                document.getElementById('about-page').style.display = 'block';
+            }
+        }
+
+        function switchTool(tool) {
+            if (currentTool === tool) return;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll(`.tab-btn[onclick="switchTool('${tool}')"]`).forEach(btn => btn.classList.add('active'));
+
+            document.querySelectorAll('.preview-page').forEach(page => {
+                page.style.display = 'none';
+                page.querySelectorAll('.item-box').forEach(box => box.classList.remove('blur', 'loading'));
+                page.querySelectorAll('.loader').forEach(loader => loader.style.display = 'none');
+                page.querySelectorAll('.download-btn').forEach(btn => btn.style.display = 'none');
+            });
+
+            if (!toolStates[currentTool].active) {
+                document.getElementById('drop-area').style.display = 'block';
+                document.getElementById('plus-btn').style.display = 'none';
+            } else {
+                document.getElementById(currentTool + '-preview').style.display = 'block';
+                document.getElementById('plus-btn').style.display = 'block';
+            }
+
+            currentTool = tool;
+            updateDropArea();
+
+            if (toolStates[tool].active) {
+                document.getElementById(tool + '-preview').style.display = 'block';
+                document.getElementById('drop-area').style.display = 'none';
+                document.getElementById('plus-btn').style.display = 'block';
+                displayImages(tool);
+            } else {
+                document.getElementById('drop-area').style.display = 'block';
+                document.getElementById('plus-btn').style.display = 'none';
+            }
+
+            document.getElementById('password-modal').style.display = 'none';
+        }
+
+        function updateDropArea() {
+            const toolName = document.getElementById('tool-name');
+            const toolInfo = document.getElementById('tool-info');
+            const fileInput = document.getElementById('file-input');
+            if (currentTool === 'image-to-pdf') {
+                toolName.textContent = 'Image to PDF';
+                toolInfo.textContent = '100% Free - No Sign-Up Needed';
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.setAttribute('multiple', '');
+            } else if (currentTool === 'pdf-to-image') {
+                toolName.textContent = 'PDF to Image';
+                toolInfo.textContent = 'Convert PDFs to Images Easily';
+                fileInput.setAttribute('accept', 'application/pdf');
+                fileInput.removeAttribute('multiple');
+            } else if (currentTool === 'image-compress') {
+                toolName.textContent = 'Image Compressor';
+                toolInfo.textContent = 'Reduce Image Size Instantly';
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.setAttribute('multiple', '');
+            } else if (currentTool === 'remove-bg') {
+                toolName.textContent = 'Remove Background';
+                toolInfo.textContent = 'Remove Image Backgrounds';
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.setAttribute('multiple', '');
+            } else if (currentTool === 'image-to-png') {
+                toolName.textContent = 'Image to PNG';
+                toolInfo.textContent = 'Convert to PNG Format';
+                fileInput.setAttribute('accept', 'image/*');
+                fileInput.setAttribute('multiple', '');
+            } else if (currentTool === 'png-to-jpeg') {
+                toolName.textContent = 'PNG to JPEG';
+                toolInfo.textContent = 'Convert PNG to JPEG';
+                fileInput.setAttribute('accept', 'image/png');
+                fileInput.setAttribute('multiple', '');
+            }
+        }
+
+        const dropArea = document.getElementById('drop-area');
+        dropArea.addEventListener('click', () => document.getElementById('file-input').click());
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+        dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+        document.getElementById('file-input').addEventListener('change', (e) => handleFiles(e.target.files));
+
+        function handleFiles(files) {
+            if (currentTool === 'image-to-pdf') {
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            imageToPDFImages.push({ src: img.src, width: img.width, height: img.height, originalFile: file, processed: false });
+                            displayImages('image-to-pdf');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropArea.style.display = 'none';
+                document.getElementById('image-to-pdf-preview').style.display = 'block';
+                toolStates['image-to-pdf'].active = true;
+            } else if (currentTool === 'pdf-to-image') {
+                pdfToImageFiles = [files[0]];
+                pdfToImageImages = [];
+                if (!files[0].type.startsWith('application/pdf')) return;
+                processPDF(files[0]);
+            } else if (currentTool === 'image-compress') {
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            imageCompressImages.push({ src: img.src, width: img.width, height: img.height, originalFile: file, processed: false });
+                            imageCompressTargets.push(50);
+                            originalSizes.push(Math.round(file.size / 1024));
+                            displayImages('image-compress');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropArea.style.display = 'none';
+                document.getElementById('image-compress-preview').style.display = 'block';
+                toolStates['image-compress'].active = true;
+            } else if (currentTool === 'remove-bg') {
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            removeBGImages.push({ src: img.src, width: img.width, height: img.height, originalFile: file, processed: false });
+                            displayImages('remove-bg');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropArea.style.display = 'none';
+                document.getElementById('remove-bg-preview').style.display = 'block';
+                toolStates['remove-bg'].active = true;
+            } else if (currentTool === 'image-to-png') {
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            imageToPNGImages.push({ src: img.src, width: img.width, height: img.height, originalFile: file, processed: false });
+                            displayImages('image-to-png');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropArea.style.display = 'none';
+                document.getElementById('image-to-png-preview').style.display = 'block';
+                toolStates['image-to-png'].active = true;
+            } else if (currentTool === 'png-to-jpeg') {
+                Array.from(files).forEach(file => {
+                    if (file.type !== 'image/png') return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.src = event.target.result;
+                        img.onload = () => {
+                            pngToJPEGImages.push({ src: img.src, width: img.width, height: img.height, originalFile: file, processed: false });
+                            displayImages('png-to-jpeg');
+                        };
+                    };
+                    reader.readAsDataURL(file);
+                });
+                dropArea.style.display = 'none';
+                document.getElementById('png-to-jpeg-preview').style.display = 'block';
+                toolStates['png-to-jpeg'].active = true;
+            }
+            document.getElementById('plus-btn').style.display = 'block';
+        }
+
+        function processPDF(file) {
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const pdfData = new Uint8Array(event.target.result);
+                    const pdf = await pdfjsLib.getDocument({ data: pdfData, password: pdfPassword }).promise;
+                    pdfToImageImages = [];
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const scale = 3.0;
+                        const viewport = page.getViewport({ scale: scale });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const context = canvas.getContext('2d');
+                        context.imageSmoothingEnabled = true;
+                        context.imageSmoothingQuality = 'high';
+                        await page.render({ canvasContext: context, viewport }).promise;
+                        pdfToImageImages.push({ 
+                            src: canvas.toDataURL('image/png', 1.0), 
+                            width: viewport.width, 
+                            height: viewport.height,
+                            processed: true
+                        });
+                    }
+                    displayImages('pdf-to-image');
+                    dropArea.style.display = 'none';
+                    document.getElementById('pdf-to-image-preview').style.display = 'block';
+                    toolStates['pdf-to-image'].active = true;
+                } catch (error) {
+                    if (error.name === 'PasswordException') {
+                        pendingPDF = file;
+                        document.getElementById('password-modal').style.display = 'block';
+                    } else {
+                        alert("Error processing PDF: " + error.message);
+                    }
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function submitPassword() {
+            pdfPassword = document.getElementById('pdf-password').value;
+            document.getElementById('password-modal').style.display = 'none';
+            if (pendingPDF) {
+                processPDF(pendingPDF);
+                pendingPDF = null;
+            }
+        }
+
+        function addMoreFiles() {
+            document.getElementById('file-input').click();
+        }
+
+        function refreshTool(tool) {
+            if (tool === 'image-to-pdf') {
+                imageToPDFImages = [];
+                document.getElementById('image-to-pdf-preview-content').innerHTML = '';
+            } else if (tool === 'pdf-to-image') {
+                pdfToImageFiles = [];
+                pdfToImageImages = [];
+                document.getElementById('pdf-to-image-preview-content').innerHTML = '';
+            } else if (tool === 'image-compress') {
+                imageCompressImages = [];
+                imageCompressTargets = [];
+                originalSizes = [];
+                document.getElementById('image-compress-preview-content').innerHTML = '';
+            } else if (tool === 'remove-bg') {
+                removeBGImages = [];
+                document.getElementById('remove-bg-preview-content').innerHTML = '';
+            } else if (tool === 'image-to-png') {
+                imageToPNGImages = [];
+                document.getElementById('image-to-png-preview-content').innerHTML = '';
+            } else if (tool === 'png-to-jpeg') {
+                pngToJPEGImages = [];
+                document.getElementById('png-to-jpeg-preview-content').innerHTML = '';
+            }
+            resetTool(tool);
+        }
+
+        function displayImages(tool) {
+            const preview = document.getElementById(`${tool}-preview-content`);
+            preview.innerHTML = '';
+            const images = tool === 'image-to-pdf' ? imageToPDFImages : 
+                          tool === 'pdf-to-image' ? pdfToImageImages : 
+                          tool === 'image-compress' ? imageCompressImages : 
+                          tool === 'remove-bg' ? removeBGImages : 
+                          tool === 'image-to-png' ? imageToPNGImages : 
+                          tool === 'png-to-jpeg' ? pngToJPEGImages : [];
+            images.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.classList.add('item-box');
+                let extraContent = '';
+                if (tool === 'image-compress') {
+                    extraContent = `
+                        <input type="range" class="quality-slider" min="10" max="100" value="${imageCompressTargets[index] || 50}" onchange="updateTargetQuality(${index}, this.value)">
+                        <div class="size-info">Original: ${originalSizes[index]} KB | Compressed: ${images[index].compressedSize || 'N/A'} KB</div>
+                        <button class="compress-btn" onclick="compressSingleImage(${index})">Compress</button>
+                    `;
+                }
+                div.innerHTML = `
+                    <img src="${img.src}" />
+                    <div class="loader"></div>
+                    <button class="remove-btn" onclick="removeImage(${index}, '${tool}')">X</button>
+                    ${extraContent}
+                    <button class="download-btn" onclick="downloadSingle(${index}, '${tool}')">Download</button>
+                `;
+                preview.appendChild(div);
+                if (img.processed) {
+                    div.querySelector('.download-btn').style.display = 'block';
+                }
+            });
+        }
+
+        function updateTargetQuality(index, quality) {
+            imageCompressTargets[index] = parseInt(quality);
+        }
+
+        function removeImage(index, tool) {
+            if (tool === 'image-to-pdf') {
+                imageToPDFImages.splice(index, 1);
+                displayImages('image-to-pdf');
+                if (imageToPDFImages.length === 0) resetTool('image-to-pdf');
+            } else if (tool === 'pdf-to-image') {
+                pdfToImageFiles.splice(index, 1);
+                pdfToImageImages.splice(index, 1);
+                displayImages('pdf-to-image');
+                if (pdfToImageImages.length === 0) resetTool('pdf-to-image');
+            } else if (tool === 'image-compress') {
+                imageCompressImages.splice(index, 1);
+                imageCompressTargets.splice(index, 1);
+                originalSizes.splice(index, 1);
+                displayImages('image-compress');
+                if (imageCompressImages.length === 0) resetTool('image-compress');
+            } else if (tool === 'remove-bg') {
+                removeBGImages.splice(index, 1);
+                displayImages('remove-bg');
+                if (removeBGImages.length === 0) resetTool('remove-bg');
+            } else if (tool === 'image-to-png') {
+                imageToPNGImages.splice(index, 1);
+                displayImages('image-to-png');
+                if (imageToPNGImages.length === 0) resetTool('image-to-png');
+            } else if (tool === 'png-to-jpeg') {
+                pngToJPEGImages.splice(index, 1);
+                displayImages('png-to-jpeg');
+                if (pngToJPEGImages.length === 0) resetTool('png-to-jpeg');
+            }
+        }
+
+        function resetTool(tool) {
+            document.getElementById(`${tool}-preview`).style.display = 'none';
+            document.getElementById('drop-area').style.display = 'block';
+            document.getElementById('plus-btn').style.display = 'none';
+            toolStates[tool].active = false;
+        }
+
+        function generatePDF() {
+            if (currentTool !== 'image-to-pdf') return;
+            if (imageToPDFImages.length === 0) return alert("Please upload at least one image!");
+            const imageBoxes = document.querySelectorAll('#image-to-pdf-preview .item-box');
+            const loaders = document.querySelectorAll('#image-to-pdf-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            imageToPDFImages.forEach((img, i) => {
+                const width = pdf.internal.pageSize.getWidth();
+                const height = (img.height / img.width) * width;
+                if (i > 0) pdf.addPage();
+                pdf.addImage(img.src, 'JPEG', 0, 0, width, height, null, 'SLOW');
+                img.processed = true;
+            });
+
+            setTimeout(() => {
+                imageBoxes.forEach(box => { 
+                    box.classList.remove('blur', 'loading'); 
+                });
+                loaders.forEach(loader => loader.style.display = 'none');
+                displayImages('image-to-pdf');
+                pdf.save("converted.pdf");
+            }, 1500);
+        }
+
+        function convertPDFtoImage() {
+            if (currentTool !== 'pdf-to-image') return;
+            if (pdfToImageFiles.length === 0) return alert("Please upload a PDF!");
+            const imageBoxes = document.querySelectorAll('#pdf-to-image-preview .item-box');
+            const loaders = document.querySelectorAll('#pdf-to-image-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const file = pdfToImageFiles[0];
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                try {
+                    const pdfData = new Uint8Array(event.target.result);
+                    const pdf = await pdfjsLib.getDocument({ data: pdfData, password: pdfPassword }).promise;
+                    pdfToImageImages = [];
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const scale = 3.0;
+                        const viewport = page.getViewport({ scale: scale });
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const context = canvas.getContext('2d');
+                        context.imageSmoothingEnabled = true;
+                        context.imageSmoothingQuality = 'high';
+                        await page.render({ 
+                            canvasContext: context, 
+                            viewport: viewport,
+                            renderInteractiveForms: false 
+                        }).promise;
+                        pdfToImageImages.push({ 
+                            src: canvas.toDataURL('image/png', 1.0), 
+                            width: viewport.width, 
+                            height: viewport.height,
+                            processed: true
+                        });
+                    }
+                    setTimeout(() => {
+                        displayImages('pdf-to-image');
+                        const newImageBoxes = document.querySelectorAll('#pdf-to-image-preview .item-box');
+                        newImageBoxes.forEach(box => { 
+                            box.classList.remove('blur', 'loading'); 
+                        });
+                        loaders.forEach(loader => loader.style.display = 'none');
+                    }, 1500);
+                } catch (error) {
+                    if (error.name === 'PasswordException') {
+                        pendingPDF = file;
+                        document.getElementById('password-modal').style.display = 'block';
+                    } else {
+                        alert("Error processing PDF: " + error.message);
+                    }
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function compressSingleImage(index) {
+            if (currentTool !== 'image-compress') return;
+            const imageBox = document.querySelectorAll('#image-compress-preview .item-box')[index];
+            const loader = imageBox.querySelector('.loader');
+            imageBox.classList.add('blur', 'loading');
+            loader.style.display = 'block';
+
+            const img = imageCompressImages[index];
+            const targetQuality = imageCompressTargets[index] / 100;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const tempImg = new Image();
+            tempImg.src = img.src;
+            tempImg.onload = () => {
+                ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height);
+                const compressedData = canvas.toDataURL('image/jpeg', targetQuality);
+                const sizeKB = Math.round((compressedData.length * 3 / 4) / 1024);
+                imageCompressImages[index] = { src: compressedData, width: img.width, height: img.height, compressedSize: sizeKB, processed: true };
+                setTimeout(() => {
+                    displayImages('image-compress');
+                    const newImageBox = document.querySelectorAll('#image-compress-preview .item-box')[index];
+                    newImageBox.classList.remove('blur', 'loading');
+                    loader.style.display = 'none';
+                }, 500);
+            };
+        }
+
+        function compressAllImages() {
+            if (currentTool !== 'image-compress') return;
+            if (imageCompressImages.length === 0) return alert("Please upload at least one image!");
+            const imageBoxes = document.querySelectorAll('#image-compress-preview .item-box');
+            const loaders = document.querySelectorAll('#image-compress-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const promises = imageCompressImages.map((img, i) => {
+                return new Promise((resolve) => {
+                    const targetQuality = imageCompressTargets[i] / 100;
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const tempImg = new Image();
+                    tempImg.src = img.src;
+                    tempImg.onload = () => {
+                        ctx.drawImage(tempImg, 0, 0, canvas.width, canvas.height);
+                        const compressedData = canvas.toDataURL('image/jpeg', targetQuality);
+                        const sizeKB = Math.round((compressedData.length * 3 / 4) / 1024);
+                        resolve({ src: compressedData, width: img.width, height: img.height, compressedSize: sizeKB, processed: true });
+                    };
+                });
+            });
+
+            Promise.all(promises).then(results => {
+                imageCompressImages = results;
+                setTimeout(() => {
+                    displayImages('image-compress');
+                    const newImageBoxes = document.querySelectorAll('#image-compress-preview .item-box');
+                    newImageBoxes.forEach(box => { 
+                        box.classList.remove('blur', 'loading'); 
+                    });
+                    loaders.forEach(loader => loader.style.display = 'none');
+                }, 1500);
+            }).catch(error => {
+                console.error("Compression error:", error);
+                alert("An error occurred while compressing images.");
+                imageBoxes.forEach(box => { box.classList.remove('blur', 'loading'); });
+                loaders.forEach(loader => loader.style.display = 'none');
+            });
+        }
+
+        function removeBackgroundAll() {
+            if (currentTool !== 'remove-bg') return;
+            if (removeBGImages.length === 0) return alert("Please upload at least one image!");
+            const imageBoxes = document.querySelectorAll('#remove-bg-preview .item-box');
+            const loaders = document.querySelectorAll('#remove-bg-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const promises = removeBGImages.map((img) => {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const tempImg = new Image();
+                    tempImg.src = img.src;
+                    tempImg.onload = () => {
+                        ctx.drawImage(tempImg, 0, 0);
+                        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                        const data = imageData.data;
+
+                        for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i + 1];
+                            const b = data[i + 2];
+                            if (r > 200 && g > 200 && b > 200) {
+                                data[i + 3] = 0;
+                            }
+                        }
+
+                        ctx.putImageData(imageData, 0, 0);
+                        const newSrc = canvas.toDataURL('image/png');
+                        resolve({ src: newSrc, width: img.width, height: img.height, processed: true });
+                    };
+                });
+            });
+
+            Promise.all(promises).then(results => {
+                removeBGImages = results;
+                setTimeout(() => {
+                    displayImages('remove-bg');
+                    const newImageBoxes = document.querySelectorAll('#remove-bg-preview .item-box');
+                    newImageBoxes.forEach(box => { 
+                        box.classList.remove('blur', 'loading'); 
+                    });
+                    loaders.forEach(loader => loader.style.display = 'none');
+                }, 1500);
+            });
+        }
+
+        function convertToPNGAll() {
+            if (currentTool !== 'image-to-png') return;
+            if (imageToPNGImages.length === 0) return alert("Please upload at least one image!");
+            const imageBoxes = document.querySelectorAll('#image-to-png-preview .item-box');
+            const loaders = document.querySelectorAll('#image-to-png-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const promises = imageToPNGImages.map((img) => {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const tempImg = new Image();
+                    tempImg.src = img.src;
+                    tempImg.onload = () => {
+                        ctx.drawImage(tempImg, 0, 0);
+                        const newSrc = canvas.toDataURL('image/png');
+                        resolve({ src: newSrc, width: img.width, height: img.height, processed: true });
+                    };
+                });
+            });
+
+            Promise.all(promises).then(results => {
+                imageToPNGImages = results;
+                setTimeout(() => {
+                    displayImages('image-to-png');
+                    const newImageBoxes = document.querySelectorAll('#image-to-png-preview .item-box');
+                    newImageBoxes.forEach(box => { 
+                        box.classList.remove('blur', 'loading'); 
+                    });
+                    loaders.forEach(loader => loader.style.display = 'none');
+                }, 1500);
+            });
+        }
+
+        function convertToJPEGAll() {
+            if (currentTool !== 'png-to-jpeg') return;
+            if (pngToJPEGImages.length === 0) return alert("Please upload at least one PNG image!");
+            const imageBoxes = document.querySelectorAll('#png-to-jpeg-preview .item-box');
+            const loaders = document.querySelectorAll('#png-to-jpeg-preview .loader');
+            imageBoxes.forEach(box => { box.classList.add('blur', 'loading'); });
+            loaders.forEach(loader => loader.style.display = 'block');
+
+            const promises = pngToJPEGImages.map((img) => {
+                return new Promise((resolve) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    const tempImg = new Image();
+                    tempImg.src = img.src;
+                    tempImg.onload = () => {
+                        ctx.drawImage(tempImg, 0, 0);
+                        const newSrc = canvas.toDataURL('image/jpeg', 0.9);
+                        resolve({ src: newSrc, width: img.width, height: img.height, processed: true });
+                    };
+                });
+            });
+
+            Promise.all(promises).then(results => {
+                pngToJPEGImages = results;
+                setTimeout(() => {
+                    displayImages('png-to-jpeg');
+                    const newImageBoxes = document.querySelectorAll('#png-to-jpeg-preview .item-box');
+                    newImageBoxes.forEach(box => { 
+                        box.classList.remove('blur', 'loading'); 
+                    });
+                    loaders.forEach(loader => loader.style.display = 'none');
+                }, 1500);
+            });
+        }
+
+        function downloadSingle(index, tool) {
+            if (tool === 'image-to-pdf') {
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const img = imageToPDFImages[index];
+                const width = pdf.internal.pageSize.getWidth();
+                const height = (img.height / img.width) * width;
+                pdf.addImage(img.src, 'JPEG', 0, 0, width, height, null, 'SLOW');
+                pdf.save(`image-${index + 1}.pdf`);
+            } else if (tool === 'pdf-to-image') {
+                if (pdfToImageImages.length === 0) return alert("Please convert the PDF first!");
+                const link = document.createElement('a');
+                link.href = pdfToImageImages[index].src;
+                link.download = `page-${index + 1}.png`;
+                link.click();
+            } else if (tool === 'image-compress') {
+                const img = imageCompressImages[index];
+                const link = document.createElement('a');
+                if (img.compressedSize) {
+                    link.href = img.src;
+                    link.download = `compressed-${index + 1}.jpg`;
+                } else {
+                    const blob = dataURLtoBlob(img.src);
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `image-${index + 1}.${img.originalFile.type.split('/')[1] || 'jpg'}`;
+                }
+                link.click();
+            } else if (tool === 'remove-bg') {
+                const link = document.createElement('a');
+                link.href = removeBGImages[index].src;
+                link.download = `nobg-${index + 1}.png`;
+                link.click();
+            } else if (tool === 'image-to-png') {
+                const link = document.createElement('a');
+                link.href = imageToPNGImages[index].src;
+                link.download = `converted-${index + 1}.png`;
+                link.click();
+            } else if (tool === 'png-to-jpeg') {
+                const link = document.createElement('a');
+                link.href = pngToJPEGImages[index].src;
+                link.download = `converted-${index + 1}.jpg`;
+                link.click();
+            }
+        }
+
+        function dataURLtoBlob(dataURL) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new Blob([u8arr], { type: mime });
+        }
+
+        updateDropArea();
+        showPage('home');
+    </script>
+</body>
+</html>
